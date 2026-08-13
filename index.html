@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 Multiplication Champion 🌟</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;display:flex;justify-content:center;align-items:center;
+  padding:20px;
+}
+.game-container{
+  background:white;border-radius:25px;padding:40px;
+  max-width:800px;width:100%;
+  box-shadow:0 25px 70px rgba(0,0,0,0.3);
+  position:relative;overflow:hidden;
+}
+.top-buttons{
+  position:absolute;top:20px;left:20px;right:20px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sound-toggle,.restart-btn-top{
+  background:#fff;border:none;font-size:1.6em;
+  border-radius:50%;width:45px;height:45px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  cursor:pointer;transition:transform 0.2s;
+}
+.sound-toggle:hover,.restart-btn-top:hover{transform:scale(1.1)}
+.header{text-align:center;margin-bottom:25px}
+h1{color:#667eea;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,0.1)}
+.level-selection{text-align:center}
+.level-title{font-size:1.3em;color:#333;margin-bottom:25px}
+.level-buttons{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:15px;margin-bottom:20px
+}
+.level-btn{
+  background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+  color:white;border:none;padding:18px;border-radius:15px;
+  font-size:1.1em;cursor:pointer;transition:all 0.3s;font-weight:bold;
+}
+.level-btn:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(245,87,108,0.4)}
+.game-screen{display:none}
+.game-header{
+  display:flex;justify-content:space-between;margin-bottom:25px;
+  flex-wrap:wrap;gap:10px
+}
+.stat-box{
+  background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+  color:white;padding:12px 18px;border-radius:15px;
+  text-align:center;min-width:110px;font-size:0.9em;
+}
+.question-box{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:white;padding:30px 20px;border-radius:20px;text-align:center;
+  margin-bottom:25px;
+}
+.question{
+  font-size:1.8em;font-weight:700;display:flex;align-items:center;
+  justify-content:center;gap:8px;
+}
+.answer-input{
+  font-size:1.3em;padding:10px;border:3px solid white;
+  border-radius:12px;text-align:center;width:120px;margin-top:15px;
+}
+.button-group{
+  display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;
+}
+.submit-btn,.pause-btn{
+  border:none;padding:12px 25px;border-radius:12px;font-size:1.1em;
+  font-weight:bold;cursor:pointer;transition:all 0.3s;color:white;
+}
+.submit-btn{background:#4caf50}.pause-btn{background:#ff9800}
+.submit-btn:hover{background:#45a049;transform:scale(1.05)}
+.pause-btn:hover{background:#f57c00;transform:scale(1.05)}
+.feedback{text-align:center;font-size:1.2em;margin-top:15px;display:none}
+.feedback.correct{color:#2e7d32}.feedback.wrong{color:#c62828}
+.final-screen{text-align:center;display:none}
+.final-screen h2{color:#667eea;margin-bottom:20px}
+.final-message{
+  background:#f3f4f6;padding:20px;border-radius:15px;margin:15px auto;
+  width:80%;font-size:1.3em;color:#333;line-height:1.5;
+}
+.restart-btn{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:white;border:none;padding:15px 40px;border-radius:15px;
+  font-size:1.2em;cursor:pointer;margin-top:20px;transition:all 0.3s;
+}
+.restart-btn:hover{transform:scale(1.05)}
+@media(max-width:600px){
+  .game-container{padding:25px}
+  h1{font-size:2em}
+  .level-btn{font-size:1em;padding:14px}
+  .question{font-size:1.5em}
+  .answer-input{width:100px}
+}
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="top-buttons">
+    <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()">🔊</button>
+    <button class="restart-btn-top" onclick="restartGame()">🔄</button>
+  </div>
+  <div class="header"><h1>🌟 Multiplication Champion 🌟</h1></div>
+
+  <div class="level-selection" id="level-selection">
+    <p class="level-title">Choose your challenge level:</p>
+    <div class="level-buttons">
+      <button class="level-btn" onclick="startGame('easy')">🟢 Easy<br><small>2-5</small></button>
+      <button class="level-btn" onclick="startGame('medium')">🟡 Medium<br><small>6-9</small></button>
+      <button class="level-btn" onclick="startGame('hard')">🔴 Hard<br><small>10-12</small></button>
+      <button class="level-btn" onclick="startGame('mixed')">🌈 Mixed<br><small>2-12</small></button>
+      <button class="level-btn" onclick="startGame('training')">🧠 Training<br><small>No timer</small></button>
+    </div>
+  </div>
+
+  <div class="game-screen" id="game-screen">
+    <div class="game-header">
+      <div class="stat-box"><div>Score</div><div id="score">0</div></div>
+      <div class="stat-box" id="timer-box"><div>Time</div><div id="timer">120</div></div>
+    </div>
+
+    <div class="question-box">
+      <div class="question" id="question"><span class="num1">2</span> × <span class="num2">3</span> = ?</div>
+      <input type="number" id="answer" class="answer-input" placeholder="?">
+    </div>
+
+    <div class="button-group">
+      <button class="submit-btn" onclick="checkAnswer()">Check ✓</button>
+      <button class="pause-btn" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="final-screen" id="final-screen">
+    <h2>🎉 Well Done! Challenge Complete!</h2>
+    <p>Final Score: <strong id="final-score">0</strong></p>
+    <div class="final-message" id="final-message"></div>
+    <button class="restart-btn" onclick="restartGame()">Play Again 🎮</button>
+  </div>
+</div>
+
+<script>
+const audioContext=new(window.AudioContext||window.webkitAudioContext)();
+let soundEnabled=true,bgGain,bgOsc;
+let level='easy',score=0,num1,num2,correctAnswer;
+let timeLeft=120,timerInterval,isPaused=false,trainingMode=false;
+let questions=[],currentIndex=0,correctCount=0;
+
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  document.getElementById('sound-toggle').textContent=soundEnabled?'🔊':'🔇';
+  if(!soundEnabled) stopBackgroundMusic(); else startBackgroundMusic();
+}
+
+function playTone(f,d,t='sine',v=0.15){if(!soundEnabled)return;
+  const o=audioContext.createOscillator(),g=audioContext.createGain();
+  o.connect(g);g.connect(audioContext.destination);
+  o.frequency.value=f;o.type=t;
+  g.gain.setValueAtTime(v,audioContext.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.01,audioContext.currentTime+d);
+  o.start(audioContext.currentTime);
+  o.stop(audioContext.currentTime+d);
+}
+
+function playCorrectSound(){
+  if(!soundEnabled)return;
+  const melody=[
+    {f:523.25,d:0.15,t:0},
+    {f:659.25,d:0.15,t:0.12},
+    {f:783.99,d:0.25,t:0.24},
+    {f:1046.50,d:0.35,t:0.42}
+  ];
+  melody.forEach(n=>setTimeout(()=>playTone(n.f,n.d,'sine',0.2),n.t*1000));
+}
+
+function playWrongSound(){
+  if(!soundEnabled)return;
+  playTone(200,0.15,'sawtooth',0.25);
+  setTimeout(()=>playTone(150,0.3,'sawtooth',0.2),150);
+}
+
+function startBackgroundMusic(){
+  // Background music disabled
+}
+function stopBackgroundMusic(){
+  // Background music disabled
+}
+
+function startGame(selectedLevel){
+  level=selectedLevel;score=0;correctCount=0;isPaused=false;trainingMode=(level==='training');
+  questions=generateQuestions(level);
+  currentIndex=0;
+  document.getElementById('level-selection').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('final-screen').style.display='none';
+  document.getElementById('score').textContent='0';
+  document.getElementById('timer-box').style.display=trainingMode?'none':'block';
+  if(!trainingMode){timeLeft=120;startTimer();}
+  startBackgroundMusic();
+  showQuestion();
+}
+
+function generateQuestions(level){
+  let min=2,max=5;
+  if(level==='medium'){min=6;max=9;}
+  else if(level==='hard'){min=10;max=12;}
+  else if(level==='mixed'){min=2;max=12;}
+  const arr=[];
+  for(let i=min;i<=max;i++){
+    for(let j=1;j<=12;j++){
+      const key=[i,j].sort().join('x');
+      if(!arr.find(q=>q.key===key))arr.push({a:i,b:j,key});
+    }
+  }
+  for(let i=arr.length-1;i>0;i--){
+    const r=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[r]]=[arr[r],arr[i]];
+  }
+  return arr.slice(0,20);
+}
+
+function showQuestion(){
+  if(currentIndex>=questions.length){endGame();return;}
+  const q=questions[currentIndex];
+  num1=q.a;num2=q.b;correctAnswer=num1*num2;
+  document.querySelector('.num1').textContent=num1;
+  document.querySelector('.num2').textContent=num2;
+  document.getElementById('answer').value='';
+  document.getElementById('answer').focus();
+  document.getElementById('feedback').style.display='none';
+}
+
+function checkAnswer(){
+  const userAns=parseInt(document.getElementById('answer').value);
+  const feedback=document.getElementById('feedback');
+  if(isNaN(userAns)){feedback.textContent='⚠️ Enter an answer';feedback.style.display='block';return;}
+  if(userAns===correctAnswer){
+    playCorrectSound();
+    score+=10;correctCount++;
+    feedback.textContent='🎉 Correct!';
+    feedback.className='feedback correct';
+  }else{
+    playWrongSound();
+    feedback.textContent=`❌ Wrong! Answer is ${correctAnswer}`;
+    feedback.className='feedback wrong';
+  }
+  feedback.style.display='block';
+  document.getElementById('score').textContent=score;
+  currentIndex++;
+  setTimeout(showQuestion,1000);
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    if(!isPaused){
+      timeLeft--;
+      document.getElementById('timer').textContent=timeLeft;
+      if(timeLeft<=0)endGame();
+    }
+  },1000);
+}
+
+function togglePause(){
+  if(trainingMode)return;
+  isPaused=!isPaused;
+  document.getElementById('pause-btn').textContent=isPaused?'▶️ Resume':'⏸️ Pause';
+}
+
+function endGame(){
+  clearInterval(timerInterval);
+  stopBackgroundMusic();
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('final-screen').style.display='block';
+  document.getElementById('final-score').textContent=score;
+  const msg=document.getElementById('final-message');
+  let text='',icon='';
+  if(correctCount>=18){icon='🦸‍♂️';text=`${icon} Excellent! You answered ${correctCount} out of 20 almost perfectly! You're a superhero!`;}
+  else if(correctCount>=15){icon='🌟';text=`${icon} Great! You answered ${correctCount} out of 20. You're doing amazing!`;}
+  else if(correctCount>=10){icon='👍';text=`${icon} Good job! You answered ${correctCount} out of 20. Keep practicing!`;}
+  else{text='💪 Not bad! Practice makes perfect! Try again.';}
+  msg.textContent=text;
+}
+
+function restartGame(){
+  stopBackgroundMusic();
+  clearInterval(timerInterval);
+  document.getElementById('final-screen').style.display='none';
+  document.getElementById('level-selection').style.display='block';
+  document.getElementById('game-screen').style.display='none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const answerInput = document.getElementById('answer');
+  if(answerInput) {
+    answerInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
